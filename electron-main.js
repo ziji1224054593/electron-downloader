@@ -29,7 +29,7 @@ const PROTOCOL_NAME = 'myapp' // 自定义协议名称
 
 // 文件系统限制配置
 const MAX_FILES_PER_DAY = 120 // 每天最多创建120个文件
-const MAX_FILE_SIZE = 200 * 1024 * 1024 // 每个文件最大200MB (200 * 1024 * 1024 字节)
+const MAX_FILE_SIZE = 100 * 1024 * 1024 // 每个文件最大100MB (100 * 1024 * 1024 字节)
 
 // 获取数据压缩包目录（需要在 app ready 后调用）
 function getDataZipDir() {
@@ -208,7 +208,7 @@ async function processTask(taskId, taskData) {
     const allData = []
     let page = 1
     let hasMore = true
-    const pageSize = 100 // 每页数据量
+    const pageSize = 10000 // 每页数据量
     
     while (hasMore) {
       try {
@@ -1106,7 +1106,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    autoHideMenuBar: true, // 隐藏菜单栏
+    autoHideMenuBar: !isDev, // 开发环境显示菜单栏，打包后隐藏
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
