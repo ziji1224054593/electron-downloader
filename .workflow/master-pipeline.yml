@@ -18,7 +18,7 @@ stages:
         displayName: el_win
         nodeVersion: 24.5.0
         commands:
-          - npm install && rm -rf ./dist && npm run build:win
+          - npm install && rm -rf ./dist_win && npm run build:win
         artifacts:
           - name: BUILD_ARTIFACT_WIN
             path:
@@ -31,33 +31,6 @@ stages:
         artifactName: output
         strategy: {}
         dependsOn: build_nodejs
-      - step: build@nodejs
-        name: build_nodejs_mac
-        displayName: el_mac
-        nodeVersion: 23.11.1
-        commands:
-          - '# 设置NPM源，提升安装速度'
-          - npm config set registry https://registry.npmmirror.com
-          - ''
-          - '# 执行编译命令'
-          - npm install && npm run build:mac
-        artifacts:
-          - name: BUILD_ARTIFACT_MAC
-            path:
-              - ./dist_mac
-        caches: []
-        notify: []
-        strategy:
-          retry: '0'
-      - step: publish@general_artifacts
-        name: publish_general_artifacts_mac
-        displayName: el_mac
-        dependArtifact: BUILD_ARTIFACT_MAC
-        artifactName: output_mac
-        notify: []
-        strategy:
-          retry: '0'
-        dependsOn: build_nodejs_mac
   - name: release
     displayName: 发布
     strategy: naturally
@@ -70,12 +43,3 @@ stages:
         version: 1.0.0.0
         autoIncrement: true
         strategy: {}
-      - step: publish@release_artifacts
-        name: publish_release_artifacts_mac
-        displayName: 发布_mac
-        dependArtifact: output_mac
-        version: 1.0.0.0
-        autoIncrement: true
-        notify: []
-        strategy:
-          retry: '0'
