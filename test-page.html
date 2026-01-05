@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据压缩包下载任务</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      padding-bottom: 80px; /* 为底部状态栏留出空间 */
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    
+    .status {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    
+    .status.connected {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .status.disconnected {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    
+    .section h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+    
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .task-item {
+      background: white;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s;
+    }
+    
+    .task-item:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .task-info {
+      flex: 1;
+    }
+    
+    .task-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    
+    .task-details {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    
+    .task-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 10px;
+    }
+    
+    .task-status.pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .task-status.processing {
+      background: #cfe2ff;
+      color: #084298;
+    }
+    
+    .task-status.completed {
+      background: #d1e7dd;
+      color: #0f5132;
+    }
+    
+    .task-status.error {
+      background: #f8d7da;
+      color: #842029;
+    }
+    
+    .task-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+    
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .btn-info {
+      background: #17a2b8;
+      color: white;
+    }
+    
+    .empty-message {
+      text-align: center;
+      color: #999;
+      padding: 40px;
+      font-size: 14px;
+    }
+    
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    
+    .info-item {
+      background: white;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #dee2e6;
+    }
+    
+    .info-label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    
+    .info-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e9ecef;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: #667eea;
+      transition: width 0.3s;
+    }
+    
+    /* 底部状态栏 */
+    .status-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.95);
+      border-top: 1px solid #dee2e6;
+      padding: 12px 20px;
+      font-size: 13px;
+      color: #666;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+    
+    .status-bar-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .status-bar-label {
+      color: #999;
+    }
+    
+    .status-bar-value {
+      color: #333;
+      font-weight: 500;
+    }
+    
+    .status-bar-value.connected {
+      color: #28a745;
+    }
+    
+    .status-bar-value.disconnected {
+      color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📦 任务队列管理系统</h1>
+    <!-- <div class="subtitle">任务队列管理系统</div> -->
+    
+    <!-- 任务列表 -->
+    <div class="section">
+      <!-- <h2>📋 任务列表</h2> -->
+      <div id="task-list" class="task-list">
+        <div class="empty-message">暂无任务</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 底部状态栏 -->
+  <div class="status-bar">
+    <div class="status-bar-item">
+      <span class="status-bar-label">连接状态:</span>
+      <span class="status-bar-value disconnected" id="status-text">未连接</span>
+    </div>
+    <div class="status-bar-item">
+      <span class="status-bar-label">WebSocket:</span>
+      <span class="status-bar-value" id="ws-status-text">-</span>
+    </div>
+    <div class="status-bar-item">
+      <span class="status-bar-label">端口:</span>
+      <span class="status-bar-value" id="ws-port-text">8765</span>
+    </div>
+    <div class="status-bar-item">
+      <span class="status-bar-label">平台:</span>
+      <span class="status-bar-value" id="platform-text">-</span>
+    </div>
+  </div>
+
+  <script>
+    let ws = null
+    let wsPort = 8765
+    let tasks = new Map() // 存储任务信息
+
+    // 更新状态
+    function updateStatus(connected) {
+      const statusText = document.getElementById('status-text')
+      const wsStatusText = document.getElementById('ws-status-text')
+      
+      if (connected) {
+        statusText.textContent = '已连接'
+        statusText.className = 'status-bar-value connected'
+        wsStatusText.textContent = '已连接'
+        wsStatusText.className = 'status-bar-value connected'
+      } else {
+        statusText.textContent = '未连接'
+        statusText.className = 'status-bar-value disconnected'
+        wsStatusText.textContent = '未连接'
+        wsStatusText.className = 'status-bar-value disconnected'
+      }
+    }
+
+    // 检查服务器健康状态
+    async function checkServerHealth(port) {
+      try {
+        const response = await fetch(`http://127.0.0.1:${port}/health`)
+        const data = await response.json()
+        return { available: true, data }
+      } catch (error) {
+        return { available: false, error }
+      }
+    }
+
+    // 连接 WebSocket
+    window.connectWebSocket = async function connectWebSocket() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        console.log('WebSocket 已连接')
+        return
+      }
+
+      // 先检查服务器
+      const health = await checkServerHealth(wsPort)
+      if (!health.available) {
+        // 尝试其他端口
+        for (let port = 8765; port <= 8770; port++) {
+          const check = await checkServerHealth(port)
+          if (check.available) {
+            wsPort = port
+            document.getElementById('ws-port-text').textContent = port
+            break
+          }
+        }
+      } else {
+        document.getElementById('ws-port-text').textContent = wsPort
+      }
+
+      try {
+        ws = new WebSocket(`ws://127.0.0.1:${wsPort}/ws`)
+
+        ws.onopen = () => {
+          console.log('✅ WebSocket 连接成功')
+          updateStatus(true)
+        }
+
+        ws.onmessage = (event) => {
+          try {
+            const message = JSON.parse(event.data)
+            handleWebSocketMessage(message)
+          } catch (error) {
+            console.error('解析消息失败:', error)
+          }
+        }
+
+        ws.onerror = (error) => {
+          console.error('❌ WebSocket 错误:', error)
+        }
+
+        ws.onclose = () => {
+          console.log('🔌 WebSocket 连接已关闭')
+          updateStatus(false)
+          ws = null
+        }
+      } catch (error) {
+        console.error('❌ 连接失败:', error.message)
+      }
+    }
+
+    // 处理 WebSocket 消息
+    function handleWebSocketMessage(message) {
+      console.log('📨 收到消息:', message)
+      
+      if (message.type === 'task-update') {
+        updateTask(message.data)
+      } else if (message.type === 'task-completed') {
+        updateTask(message.data)
+      }
+    }
+
+    // 添加或更新任务
+    function updateTask(taskData) {
+      const taskId = taskData.id || Date.now().toString()
+      
+      if (!tasks.has(taskId)) {
+        tasks.set(taskId, {
+          id: taskId,
+          status: 'pending',
+          apiUrl: '',
+          progress: 0,
+          fileName: '',
+          filePath: '',
+          createdAt: new Date().toLocaleString(),
+          ...taskData
+        })
+      } else {
+        const existingTask = tasks.get(taskId)
+        tasks.set(taskId, {
+          ...existingTask,
+          ...taskData
+        })
+      }
+      
+      renderTasks()
+    }
+
+    // 渲染任务列表
+    function renderTasks() {
+      const taskList = document.getElementById('task-list')
+      
+      if (tasks.size === 0) {
+        taskList.innerHTML = '<div class="empty-message">暂无任务</div>'
+        return
+      }
+      
+      taskList.innerHTML = ''
+      
+      const sortedTasks = Array.from(tasks.values()).sort((a, b) => {
+        return new Date(b.createdAt) - new Date(a.createdAt)
+      })
+      
+      sortedTasks.forEach(task => {
+        const taskItem = document.createElement('div')
+        taskItem.className = 'task-item'
+        
+        const statusText = {
+          'pending': '等待中',
+          'processing': '处理中',
+          'completed': '已完成',
+          'error': '失败'
+        }[task.status] || '未知'
+        
+        // 转义 HTML 防止 XSS
+        function escapeHtml(text) {
+          if (text == null) return ''
+          const div = document.createElement('div')
+          div.textContent = text
+          return div.innerHTML
+        }
+        
+        const escapedFileName = escapeHtml(task.fileName || '任务 ' + task.id)
+        const escapedApiUrl = task.apiUrl ? escapeHtml(task.apiUrl) : ''
+        const escapedFilePath = task.filePath ? escapeHtml(task.filePath) : ''
+        const escapedCreatedAt = escapeHtml(task.createdAt)
+        const escapedTaskId = escapeHtml(task.id)
+        
+        taskItem.innerHTML = `
+          <div class="task-info">
+            <div class="task-title">
+              <span class="task-status ${task.status}">${escapeHtml(statusText)}</span>
+              ${escapedFileName}
+            </div>
+            <div class="task-details">创建时间: ${escapedCreatedAt}</div>
+            ${escapedApiUrl ? `<div class="task-details">接口: ${escapedApiUrl}</div>` : ''}
+            ${task.status === 'processing' ? `
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${task.progress || 0}%"></div>
+              </div>
+            ` : ''}
+            ${task.status === 'completed' && task.filePath ? `
+              <div class="task-details">文件目录: ${escapedFilePath}</div>
+            ` : ''}
+          </div>
+          <div class="task-actions">
+            ${task.status === 'completed' && task.filePath ? `
+              <button class="btn-success" data-task-id="${escapedTaskId}" onclick="openFileLocation('${escapedTaskId}')">查看</button>
+            ` : ''}
+            ${task.status === 'error' ? `
+              <button class="btn-danger" data-task-id="${escapedTaskId}" onclick="removeTask('${escapedTaskId}')">删除</button>
+            ` : ''}
+          </div>
+        `
+        
+        taskList.appendChild(taskItem)
+      })
+    }
+
+    // 打开文件位置
+    window.openFileLocation = function openFileLocation(taskId) {
+      const task = tasks.get(taskId)
+      if (task && task.filePath) {
+        // 通过 WebSocket 发送打开文件位置的请求
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({
+            type: 'open-file-location',
+            taskId: taskId,
+            filePath: task.filePath
+          }))
+        }
+      }
+    }
+
+    // 删除任务
+    window.removeTask = function removeTask(taskId) {
+      tasks.delete(taskId)
+      renderTasks()
+    }
+
+    // 初始化 Electron IPC 监听
+    window.initElectronListeners = function initElectronListeners() {
+      // 等待一下，确保 preload 脚本已加载
+      setTimeout(() => {
+        // 检查 electronAPI 是否可用
+        if (window.electronAPI) {
+          console.log('✅ Electron API 已加载')
+          
+          // 监听来自主进程的消息（只在控制台打印）
+          window.electronAPI.onMessage((data) => {
+            console.log('📨 收到主进程消息:', data)
+            
+            // 如果收到任务数据，处理任务
+            if (data.type === 'task-data' && data.data) {
+              // 通过 WebSocket 发送任务数据到主进程处理
+              if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                  type: 'start-task',
+                  data: data.data
+                }))
+              }
+            }
+          })
+          
+          // 监听通知（只在控制台打印）
+          window.electronAPI.onNotification((data) => {
+            console.log('🔔 收到通知:', data)
+          })
+        } else {
+          console.warn('⚠️ Electron API 未加载（可能不在 Electron 环境中）')
+        }
+      }, 100)
+    }
+
+    // 初始化
+    window.addEventListener('load', () => {
+      console.log('🚀 页面已加载')
+      
+      // 显示平台信息
+      document.getElementById('platform-text').textContent = navigator.platform
+      
+      // 初始化 Electron IPC 监听
+      window.initElectronListeners()
+      
+      // 自动连接 WebSocket（延迟 1 秒确保服务器已启动）
+      setTimeout(() => {
+        window.connectWebSocket()
+      }, 1000)
+    })
+  </script>
+</body>
+</html>

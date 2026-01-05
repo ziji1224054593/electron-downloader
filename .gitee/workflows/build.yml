@@ -1,0 +1,94 @@
+name: 构建 Electron 应用
+
+on:
+  push:
+    tags:
+      - 'v*'
+  manual:
+
+jobs:
+  build-windows:
+    name: 构建 Windows 版本
+    runs-on: windows-latest
+    steps:
+      - name: 检出代码
+        uses: gitee/checkout@master
+
+      - name: 设置 Node.js
+        uses: gitee/setup-node@master
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建 Windows 应用
+        run: npm run build:win
+
+      - name: 上传构建产物
+        uses: gitee/upload-artifact@master
+        with:
+          name: Windows-构建产物
+          path: |
+            release/*.exe
+            release/*.zip
+          if-no-files-found: warn
+
+  build-macos:
+    name: 构建 macOS 版本
+    runs-on: macos-latest
+    steps:
+      - name: 检出代码
+        uses: gitee/checkout@master
+
+      - name: 设置 Node.js
+        uses: gitee/setup-node@master
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建 macOS 应用
+        run: npm run build:mac
+
+      - name: 上传构建产物
+        uses: gitee/upload-artifact@master
+        with:
+          name: macOS-构建产物
+          path: |
+            release/*.dmg
+            release/*.zip
+          if-no-files-found: warn
+
+  build-linux:
+    name: 构建 Linux 版本
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: gitee/checkout@master
+
+      - name: 设置 Node.js
+        uses: gitee/setup-node@master
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建 Linux 应用
+        run: npm run build:linux
+
+      - name: 上传构建产物
+        uses: gitee/upload-artifact@master
+        with:
+          name: Linux-构建产物
+          path: |
+            release/*.AppImage
+            release/*.deb
+            release/*.zip
+          if-no-files-found: warn
+

@@ -1,0 +1,49 @@
+# Gitee CI/CD 配置文件
+# 注意：Gitee 的 CI/CD 配置可能因版本而异，请根据实际情况调整
+
+stages:
+  - build
+
+build-windows:
+  stage: build
+  image: node:20
+  tags:
+    - windows
+  script:
+    - npm ci
+    - npm run build:win
+  artifacts:
+    paths:
+      - release/*.exe
+      - release/*.zip
+    expire_in: 7 days
+
+build-macos:
+  stage: build
+  image: node:20
+  tags:
+    - macos
+  script:
+    - npm ci
+    - npm run build:mac
+  artifacts:
+    paths:
+      - release/*.dmg
+      - release/*.zip
+    expire_in: 7 days
+
+build-linux:
+  stage: build
+  image: node:20
+  tags:
+    - linux
+  script:
+    - npm ci
+    - npm run build:linux
+  artifacts:
+    paths:
+      - release/*.AppImage
+      - release/*.deb
+      - release/*.zip
+    expire_in: 7 days
+

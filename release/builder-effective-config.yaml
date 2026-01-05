@@ -1,0 +1,38 @@
+directories:
+  output: release
+  buildResources: build
+appId: com.electron.app
+productName: ElectronApp
+files:
+  - filter:
+      - electron-main.js
+      - preload.js
+      - test-page.html
+      - package.json
+      - node_modules/**/*
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  signAndEditExecutable: false
+  asarUnpack: []
+asar: true
+mac:
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+  category: public.app-category.utilities
+linux:
+  target:
+    - AppImage
+    - deb
+  category: Utility
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+electronVersion: 39.2.7
