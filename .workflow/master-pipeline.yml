@@ -18,41 +18,7 @@ stages:
         displayName: el_win
         nodeVersion: 24.5.0
         commands:
-          - cd /root/workspace/imageOptimize/electron-downloader && \
-          - ''
-          - '# 1. 修改 package.json，所有 git 依赖改为 npm 包名'
-          - ''
-          - '# 例如："electron/node-gyp.git" 改为 "node-gyp"'
-          - ''
-          - sed -i 's|"electron/node-gyp.git"|"node-gyp"|g' package.json && \
-          - ''
-          - sed -i 's|git+https://github.com/.*\.git"|"latest"|g' package.json && \
-          - ''
-          - '# 2. 设置 npm 配置'
-          - ''
-          - npm config set registry https://registry.npmmirror.com && \
-          - ''
-          - npm config set electron_mirror "https://cdn.npmmirror.com/binaries/electron/" && \
-          - ''
-          - npm config set progress false && \
-          - ''
-          - npm config set loglevel warn && \
-          - ''
-          - '# 3. 设置环境变量跳过 git'
-          - ''
-          - export GIT_SSL_NO_VERIFY=1 && \
-          - ''
-          - export npm_config_git_tag_version=false && \
-          - ''
-          - '# 4. 安装'
-          - ''
-          - rm -rf node_modules package-lock.json && \
-          - ''
-          - npm install --legacy-peer-deps --no-git-tag-version --fetch-retries=3 --fetch-timeout=180000 && \
-          - ''
-          - rm -rf ./dist_win && \
-          - ''
-          - npm run build:win
+          - cd /root/workspace/imageOptimize/electron-downloader && sed -i 's|ssh://git@github.com/electron/node-gyp.git|node-gyp|g' package.json && npm config set registry https://registry.npmmirror.com && export ELECTRON_MIRROR="https://cdn.npmmirror.com/binaries/electron/" && rm -rf node_modules package-lock.json && npm install --legacy-peer-deps && rm -rf ./dist_win && npm run build:win
         artifacts:
           - name: BUILD_ARTIFACT_WIN
             path:
