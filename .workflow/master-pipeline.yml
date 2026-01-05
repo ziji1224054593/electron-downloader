@@ -45,9 +45,7 @@ stages:
           - name: BUILD_ARTIFACT_MAC
             path:
               - ./dist_mac
-        caches:
-          - ~/.npm
-          - ~/.yarn
+        caches: []
         notify: []
         strategy:
           retry: '0'
