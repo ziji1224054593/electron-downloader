@@ -18,7 +18,7 @@ stages:
         displayName: el_win
         nodeVersion: 24.5.0
         commands:
-          - npm config set registry https://registry.npmmirror.com
+          - npm config set registry https://registry.npm.taobao.org
           - npm install && rm -rf ./dist_win && npm run build:win
         artifacts:
           - name: BUILD_ARTIFACT_WIN
