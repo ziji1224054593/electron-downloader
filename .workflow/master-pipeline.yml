@@ -18,8 +18,13 @@ stages:
         displayName: el_win
         nodeVersion: 24.5.0
         commands:
-          - npm config set registry https://registry.npm.taobao.org
-          - npm install && rm -rf ./dist_win && npm run build:win
+          - '# 修改后的完整构建命令'
+          - npm config set registry https://registry.npm.taobao.org && \
+          - export ELECTRON_MIRROR="https://cdn.npmmirror.com/binaries/electron/" && \
+          - export ELECTRON_BUILDER_BINARIES_MIRROR="https://npmmirror.com/mirrors/electron-builder-binaries/" && \
+          - npm install && \
+          - rm -rf ./dist_win && \
+          - npm run build:win
         artifacts:
           - name: BUILD_ARTIFACT_WIN
             path:
