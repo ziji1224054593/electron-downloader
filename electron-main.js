@@ -1405,10 +1405,16 @@ function createMenu() {
     ]
   }
 
-  // 不设置应用菜单，隐藏菜单栏
-  // const menu = Menu.buildFromTemplate(template)
-  // Menu.setApplicationMenu(menu)
-  Menu.setApplicationMenu(null) // 完全隐藏菜单栏
+  // 根据环境决定是否显示菜单栏
+  const isDev = process.argv.includes('--dev') || !app.isPackaged
+  if (isDev) {
+    // 开发环境：显示菜单栏
+    const menu = Menu.buildFromTemplate(template)
+    Menu.setApplicationMenu(menu)
+  } else {
+    // 打包环境：隐藏菜单栏
+    Menu.setApplicationMenu(null)
+  }
 }
 
 // ==================== 应用生命周期 ====================
