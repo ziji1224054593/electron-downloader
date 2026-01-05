@@ -51,6 +51,15 @@ stages:
         notify: []
         strategy:
           retry: '0'
+      - step: publish@general_artifacts
+        name: publish_general_artifacts_mac
+        displayName: el_mac
+        dependArtifact: BUILD_ARTIFACT_MAC
+        artifactName: output_mac
+        notify: []
+        strategy:
+          retry: '0'
+        dependsOn: build_nodejs_mac
   - name: release
     displayName: 发布
     strategy: naturally
