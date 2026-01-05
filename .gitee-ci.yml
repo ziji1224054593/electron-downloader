@@ -1,49 +1,73 @@
-# Gitee CI/CD 配置文件
-# 注意：Gitee 的 CI/CD 配置可能因版本而异，请根据实际情况调整
+version: '1.0'
+name: electron-build-pipeline
+displayName: Electron应用构建流水线
+triggers:
+  trigger: auto
+  push:
+    branches:
+      prefix:
+        - ''
 
 stages:
-  - build
+  - name: build_stage
+    displayName: 构建阶段
+    strategy: naturally
+    trigger: auto
+    steps:
+        - step: build@npm
+          name: build_windows
+          displayName: 构建 Windows 版本
+          tags:
+            - windows
+          inputs:
+            npmRegistry: https://registry.npmmirror.com
+            command: npm install && rm -rf ./dist_win && npm run build:win
+            artifactBuildPath:
+              - name: BUILD_ARTIFACT_WIN
+                path:
+                  - ./release
+                type: .tar.gz
+          artifacts:
+            paths:
+              - release/*.exe
+              - release/*.zip
+            expire_in: 7 days
 
-build-windows:
-  stage: build
-  image: node:20
-  tags:
-    - windows
-  script:
-    - npm ci
-    - npm run build:win
-  artifacts:
-    paths:
-      - release/*.exe
-      - release/*.zip
-    expire_in: 7 days
+        - step: build@npm
+          name: build_macos
+          displayName: 构建 macOS 版本
+          tags:
+            - macos
+          inputs:
+            npmRegistry: https://registry.npmmirror.com
+            command: npm install && rm -rf ./dist_mac && npm run build:mac
+            artifactBuildPath:
+              - name: BUILD_ARTIFACT_MAC
+                path:
+                  - ./release
+                type: .tar.gz
+          artifacts:
+            paths:
+              - release/*.dmg
+              - release/*.zip
+            expire_in: 7 days
 
-build-macos:
-  stage: build
-  image: node:20
-  tags:
-    - macos
-  script:
-    - npm ci
-    - npm run build:mac
-  artifacts:
-    paths:
-      - release/*.dmg
-      - release/*.zip
-    expire_in: 7 days
-
-build-linux:
-  stage: build
-  image: node:20
-  tags:
-    - linux
-  script:
-    - npm ci
-    - npm run build:linux
-  artifacts:
-    paths:
-      - release/*.AppImage
-      - release/*.deb
-      - release/*.zip
-    expire_in: 7 days
-
+        - step: build@npm
+          name: build_linux
+          displayName: 构建 Linux 版本
+          tags:
+            - linux
+          inputs:
+            npmRegistry: https://registry.npmmirror.com
+            command: npm install && rm -rf ./dist_linux && npm run build:linux
+            artifactBuildPath:
+              - name: BUILD_ARTIFACT_LINUX
+                path:
+                  - ./release
+                type: .tar.gz
+          artifacts:
+            paths:
+              - release/*.AppImage
+              - release/*.deb
+              - release/*.zip
+            expire_in: 7 days
