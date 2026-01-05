@@ -18,26 +18,12 @@ stages:
         displayName: el_win
         nodeVersion: 24.5.0
         commands:
-          - ''
-          - ''
-          - cd /root/workspace/imageOptimize/electron-downloader && \
-          - ''
-          - sed -i 's|ssh://git@github.com
-          - ''
-          - '```/electron/node-gyp.git|node-gyp|g'' package.json && \'
-          - ''
           - npm config set registry https://registry.npmmirror.com && \
-          - ''
           - export ELECTRON_MIRROR="https://cdn.npmmirror.com/binaries/electron/" && \
-          - ''
           - export ELECTRON_BUILDER_BINARIES_MIRROR="https://npmmirror.com/mirrors/electron-builder-binaries/" && \
-          - ''
           - rm -rf node_modules package-lock.json && \
-          - ''
           - npm install --legacy-peer-deps && \
-          - ''
           - rm -rf ./dist_win && \
-          - ''
           - npm run build:win
         artifacts:
           - name: BUILD_ARTIFACT_WIN
