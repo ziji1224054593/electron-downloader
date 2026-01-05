@@ -19,10 +19,7 @@
     "websocket",
     "browser-communication"
   ],
-  "author": {
-    "name": "Electron App",
-    "email": "1224054593@qq.com"
-  },
+  "author": "Electron App <1224054593@qq.com>",
   "license": "MIT",
   "dependencies": {
     "archiver": "^7.0.1",
@@ -79,7 +76,7 @@
         "deb"
       ],
       "category": "Utility",
-      "maintainer": "app@example.com"
+      "maintainer": "1224054593@qq.com"
     },
     "nsis": {
       "oneClick": false,
