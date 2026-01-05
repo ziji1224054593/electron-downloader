@@ -15,14 +15,14 @@ stages:
     steps:
       - step: build@nodejs
         name: build_nodejs
-        displayName: Nodejs 构建
+        displayName: el_win
         nodeVersion: 18.16.0
         commands:
           - npm install && rm -rf ./dist && npm run build:win
         artifacts:
-          - name: BUILD_ARTIFACT
+          - name: BUILD_ARTIFACT_WIN
             path:
-              - ./dist
+              - ./dist_win
         strategy: {}
       - step: publish@general_artifacts
         name: publish_general_artifacts
