@@ -16,7 +16,7 @@ stages:
       - step: build@nodejs
         name: build_nodejs
         displayName: el_win
-        nodeVersion: 18.16.0
+        nodeVersion: 24.5.0
         commands:
           - npm install && rm -rf ./dist && npm run build:win
         artifacts:
