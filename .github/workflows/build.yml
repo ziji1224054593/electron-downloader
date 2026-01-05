@@ -34,8 +34,17 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: 设置 NPM 镜像源
+        run: npm config set registry https://registry.npmmirror.com
+
       - name: 安装依赖
         run: npm ci
+
+      - name: 清理旧构建文件
+        run: |
+          echo "清理旧的构建文件..."
+          rm -rf release/* dist/* 2>/dev/null || echo "目录不存在或已清空"
+        shell: bash
 
       - name: 构建应用
         run: npm run build:${{ matrix.platform }}
