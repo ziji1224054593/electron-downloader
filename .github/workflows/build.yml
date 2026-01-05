@@ -1,95 +1,64 @@
-{
-  "name": "electron-app",
-  "version": "1.0.0",
-  "description": "Electron 桌面应用",
-  "main": "electron-main.js",
-  "scripts": {
-    "start": "electron .",
-    "dev": "electron . --dev",
-    "test": "electron . --test",
-    "build": "electron-builder",
-    "build:win": "electron-builder --win",
-    "build:mac": "electron-builder --mac",
-    "build:linux": "electron-builder --linux",
-    "dist": "npm run build",
-    "build:all": "echo 注意: 跨平台构建需要使用 GitHub Actions 或对应的操作系统"
-  },
-  "keywords": [
-    "electron",
-    "websocket",
-    "browser-communication"
-  ],
-  "author": {
-    "name": "Electron App",
-    "email": "1224054593@qq.com"
-  },
-  "license": "MIT",
-  "dependencies": {
-    "archiver": "^7.0.1",
-    "axios": "^1.13.2",
-    "core-util-is": "^1.0.3",
-    "docx": "^9.5.1",
-    "ws": "^8.14.2"
-  },
-  "devDependencies": {
-    "electron": "^39.2.7",
-    "electron-builder": "^26.0.12"
-  },
-  "build": {
-    "appId": "com.electron.app",
-    "productName": "ElectronApp",
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "electron-main.js",
-      "preload.js",
-      "test-page.html",
-      "package.json",
-      "node_modules/**/*"
-    ],
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "signAndEditExecutable": false,
-      "asarUnpack": []
-    },
-    "asar": true,
-    "mac": {
-      "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ],
-      "category": "public.app-category.utilities"
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ],
-      "category": "Utility",
-      "maintainer": "1224054593@qq.com",
-      "vendor": "Electron App",
-      "deb": {
-        "maintainer": "1224054593@qq.com"
-      }
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
-    }
-  }
-}
+name: 构建 Electron 应用
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+        include:
+          - os: macos-latest
+            platform: mac
+            artifact_name: macOS
+          - os: windows-latest
+            platform: win
+            artifact_name: Windows
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 设置 NPM 镜像源
+        run: npm config set registry https://registry.npmmirror.com
+
+      - name: 安装依赖
+        run: |
+          npm ci --legacy-peer-deps --prefer-offline --no-audit || npm install --legacy-peer-deps --prefer-offline --no-audit
+        timeout-minutes: 15
+
+      - name: 清理旧构建文件
+        run: |
+          echo "清理旧的构建文件..."
+          rm -rf release/* dist/* 2>/dev/null || echo "目录不存在或已清空"
+        shell: bash
+
+      - name: 构建应用
+        run: npm run build:${{ matrix.platform }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        timeout-minutes: 30
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}-构建产物
+          path: |
+            release/*.exe
+            release/*.dmg
+            release/*.zip
+          if-no-files-found: warn
+
