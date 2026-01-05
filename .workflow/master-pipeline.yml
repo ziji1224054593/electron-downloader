@@ -71,3 +71,13 @@ stages:
         dependArtifact: output
         version: 1.0.0.0
         autoIncrement: true
+        strategy: {}
+      - step: publish@release_artifacts
+        name: publish_release_artifacts_mac
+        displayName: 发布_mac
+        dependArtifact: output_mac
+        version: 1.0.0.0
+        autoIncrement: true
+        notify: []
+        strategy:
+          retry: '0'
