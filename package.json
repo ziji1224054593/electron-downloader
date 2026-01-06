@@ -19,7 +19,10 @@
     "websocket",
     "browser-communication"
   ],
-  "author": "",
+  "author": {
+    "name": "任务队列管理系统",
+    "email": "1224054593@qq.com"
+  },
   "license": "MIT",
   "dependencies": {
     "archiver": "^7.0.1",
@@ -34,7 +37,7 @@
   },
   "build": {
     "appId": "com.electron.app",
-    "productName": "ElectronApp",
+    "productName": "任务队列管理系统",
     "directories": {
       "output": "release"
     },
@@ -69,13 +72,6 @@
         }
       ],
       "category": "public.app-category.utilities"
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ],
-      "category": "Utility"
     },
     "nsis": {
       "oneClick": false,

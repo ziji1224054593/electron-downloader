@@ -52,22 +52,3 @@ stages:
               - release/*.zip
             expire_in: 7 days
 
-        - step: build@npm
-          name: build_linux
-          displayName: 构建 Linux 版本
-          tags:
-            - linux
-          inputs:
-            npmRegistry: https://registry.npmmirror.com
-            command: npm install && rm -rf ./dist_linux && npm run build:linux
-            artifactBuildPath:
-              - name: BUILD_ARTIFACT_LINUX
-                path:
-                  - ./release
-                type: .tar.gz
-          artifacts:
-            paths:
-              - release/*.AppImage
-              - release/*.deb
-              - release/*.zip
-            expire_in: 7 days
