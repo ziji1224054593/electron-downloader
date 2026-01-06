@@ -35,6 +35,10 @@
     "electron": "^39.2.7",
     "electron-builder": "^26.0.12"
   },
+  "overrides": {
+    "shell-quote": ">=1.7.3",
+    "sha.js": ">=2.4.12"
+  },
   "build": {
     "appId": "com.electron.app",
     "productName": "任务队列管理系统",
