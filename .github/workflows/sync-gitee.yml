@@ -42,4 +42,4 @@ jobs:
     # 第四步：推送到GitHub
     - name: Push to GitHub
       run: |
-        git push origin main
+        git push origin master
